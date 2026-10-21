@@ -13,6 +13,7 @@
 @media(max-width:600px){.wrap{margin:9px auto;padding:0 10px}.card{padding:14px}.card h2{margin-bottom:8px}label{margin:10px 0 5px}input,select{padding:11px}.tabs{margin:12px 0 8px}header p{margin:2px 0!important}.muted{line-height:1.4}footer{padding:14px}}
 .nfc-panel{border:1px solid #c8d9f3;background:#f5f9ff;border-radius:12px;padding:14px;margin:14px 0}.nfc-panel h2{margin:0 0 6px}.nfc-panel p{margin:8px 0}.nfc-panel button{margin:5px 0;width:100%}button:disabled{opacity:.55;cursor:not-allowed}
 .production{margin:12px 0;padding:12px;background:#f6f9ff;border:1px solid #d9e5f7;border-radius:12px}.production label{font-size:14px;font-weight:500;display:flex;align-items:flex-start;gap:9px;margin:10px 0}.production input[type=checkbox]{width:19px;height:19px;flex:0 0 19px;margin:1px 0}.production .status{font-size:13px;font-weight:700}.production .status.ready{color:#08734d}
+.tag-unit{background:white;border:1px solid #dbe5f2;border-radius:10px;padding:10px;margin:10px 0}.tag-unit strong{font-size:14px}.tag-unit .row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.tag-unit button{width:auto;font-size:13px;padding:8px 11px}.tag-unit input[type=text]{margin:6px 0 4px}.tag-summary{font-size:14px;font-weight:700;margin:10px 0}.tag-add{margin:8px 0;width:100%}.tag-unit label{font-size:13px}.tag-unit .muted{font-size:12px}
 </style></head><body><main class="wrap"><header><div class="logo">⭐</div><div><h1>AvaliaLink</h1><p style="margin:4px 0">Seu gerador de links, QR Codes e tags NFC</p></div></header>
 <nav class="tabs" aria-label="Ferramentas"><button type="button" class="tab active" data-tab="create">✦ Nova tag</button><button type="button" class="tab" data-tab="search">⌕ Buscar</button><button type="button" class="tab" data-tab="clients">▤ Clientes</button></nav><div id="tab-search" class="tab-panel" hidden><section class="card"><h2>Buscar empresa</h2>
 <p class="muted">Pesquise gratuitamente no Google Maps e confira qual empresa é a correta. A pesquisa abre em outra aba; o Google Maps não envia automaticamente o Place ID ao AvaliaLink.</p>
@@ -140,21 +141,42 @@ function renderSaved(){
   const sub=document.createElement('div');sub.className='muted';sub.textContent=item.url;sub.style.overflowWrap='anywhere';
   const date=document.createElement('div');date.className='muted';date.textContent=item.date&&!isNaN(Date.parse(item.date))?'Salvo em '+new Date(item.date).toLocaleDateString('pt-BR'):'';
   const prod=document.createElement('div');prod.className='production';
-  const prodTitle=document.createElement('strong');prodTitle.textContent='Controle de produção';prod.append(prodTitle);
+  const prodTitle=document.createElement('strong');prodTitle.textContent='Controle de produção — tags individuais';prod.append(prodTitle);
   const checks=[['recorded','Tag gravada'],['tested','Link testado na tag'],['locked','Bloqueio permanente confirmado no NFC Tools']];
-  const flags=item.production&&typeof item.production==='object'?item.production:{};
-  const state=document.createElement('div');state.className='status';
-  function updateState(){const arr=getSaved();const obj=arr[i];if(!obj)return;const f=obj.production||{};state.textContent=f.recorded&&f.tested&&f.locked?'✓ Pronta para entrega':'Pendente: '+checks.filter(([k])=>!f[k]).length+' etapa(s)';state.className='status'+(f.recorded&&f.tested&&f.locked?' ready':'');}
-  for(const [key,caption] of checks){
-   const label=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.checked=flags[key]===true;
-   const span=document.createElement('span');span.textContent=caption;label.append(check,span);prod.append(label);
-   check.addEventListener('change',()=>{
-    if(key==='locked'&&check.checked&&!confirm('Confirme apenas se o NFC Tools mostrou Gravável: Não. O bloqueio permanente não pode ser desfeito.')){check.checked=false;return;}
-    const arr=getSaved();if(!arr[i])return;arr[i].production={...arr[i].production,[key]:check.checked};
-    try{setSaved(arr);updateState();}catch{check.checked=!check.checked;alert('Não foi possível salvar o controle de produção.');}
-   });
+  // Migração automática: o cadastro antigo passa a ter uma primeira tag, preservando as três marcações.
+  function tagList(obj){
+    if(Array.isArray(obj.tags)&&obj.tags.length)return obj.tags;
+    return [{id:'legado-1',name:'Tag 1',production:obj.production&&typeof obj.production==='object'?obj.production:{}}];
   }
-  prod.append(state);updateState();
+  function saveTags(tags){const arr=getSaved();if(!arr[i])return false;arr[i].tags=tags;try{setSaved(arr);return true}catch{alert('Não foi possível salvar. Faça um backup JSON.');return false}}
+  function drawTags(){
+    const fresh=getSaved()[i];if(!fresh)return;
+    const tags=tagList(fresh);prod.replaceChildren(prodTitle);
+    const summary=document.createElement('div');summary.className='tag-summary';
+    const ready=tags.filter(t=>t.production?.recorded&&t.production?.tested&&t.production?.locked).length;
+    summary.textContent=ready+' de '+tags.length+' tag(s) pronta(s) para entrega';prod.append(summary);
+    tags.forEach((tag,j)=>{
+      const unit=document.createElement('div');unit.className='tag-unit';
+      const head=document.createElement('div');head.className='row';
+      const name=document.createElement('strong');name.textContent=tag.name||'Tag '+(j+1);
+      const renameTag=document.createElement('button');renameTag.type='button';renameTag.className='secondary';renameTag.textContent='Renomear';renameTag.onclick=()=>{const val=prompt('Identificação da tag (ex.: Balcão 1):',tag.name||'Tag '+(j+1));if(val===null||!val.trim())return;const updated=tagList(getSaved()[i]);updated[j].name=val.trim().slice(0,80);if(saveTags(updated))drawTags();};
+      const removeTag=document.createElement('button');removeTag.type='button';removeTag.className='danger';removeTag.textContent='Excluir tag';removeTag.disabled=tags.length===1;removeTag.onclick=()=>{if(!confirm('Excluir somente esta tag e seu histórico de produção?'))return;const updated=tagList(getSaved()[i]);updated.splice(j,1);if(saveTags(updated))drawTags();};
+      head.append(name,renameTag,removeTag);unit.append(head);
+      for(const [key,caption] of checks){
+        const label=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.checked=tag.production?.[key]===true;
+        const span=document.createElement('span');span.textContent=caption;label.append(check,span);unit.append(label);
+        check.onchange=()=>{
+          if(key==='locked'&&check.checked&&!confirm('Confirme apenas se esta tag específica mostrou Gravável: Não no NFC Tools. O bloqueio não pode ser desfeito.')){check.checked=false;return;}
+          const updated=tagList(getSaved()[i]);updated[j].production={...updated[j].production,[key]:check.checked};if(saveTags(updated))drawTags();else check.checked=!check.checked;
+        };
+      }
+      unit.append(document.createElement('hr'));
+      const state=document.createElement('div');state.className='status'+(tag.production?.recorded&&tag.production?.tested&&tag.production?.locked?' ready':'');state.textContent=tag.production?.recorded&&tag.production?.tested&&tag.production?.locked?'✓ Pronta para entrega':'Pendente';unit.append(state);prod.append(unit);
+    });
+    const add=document.createElement('button');add.type='button';add.className='secondary tag-add';add.textContent='+ Adicionar tag';add.onclick=()=>{const updated=tagList(getSaved()[i]);if(updated.length>=200){alert('Limite de 200 tags por estabelecimento.');return;}const label=prompt('Identificação da nova tag:', 'Tag '+(updated.length+1));if(label===null)return;updated.push({id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2),name:label.trim().slice(0,80)||'Tag '+(updated.length+1),production:{}});if(saveTags(updated))drawTags();};prod.append(add);
+    const note=document.createElement('div');note.className='muted';note.textContent='As marcações são manuais. Confirme cada tag individualmente antes de entregar.';prod.append(note);
+  }
+  drawTags();
   const actions=document.createElement('div');actions.className='row';
   const load=document.createElement('button');load.textContent='Carregar e gerar QR';load.onclick=()=>loadCustomer(item);
   const open=document.createElement('a');open.href=item.url;open.target='_blank';open.rel='noopener noreferrer';open.textContent='Testar ↗';open.className='btn secondary';
@@ -165,9 +187,9 @@ function renderSaved(){
  });
 }
 $('filterCustomers').addEventListener('input',renderSaved);
-$('save').addEventListener('click',()=>{if(!$('verified').checked){$('saveMsg').textContent='Antes de salvar, confirme que você testou a avaliação da empresa correta.';return;}const name=$('name').value.trim()||'Estabelecimento';const rows=getSaved();const found=rows.findIndex(x=>x.url===current);const record={name,url:current,date:new Date().toISOString(),production:found>=0?rows[found].production||{}:{}};if(found>=0)rows[found]=record;else rows.unshift(record);try{setSaved(rows);renderSaved();$('saveMsg').textContent='Empresa salva neste navegador.';}catch{$('saveMsg').textContent='Não foi possível salvar. Exporte um backup ou libere espaço no navegador.';}});
+$('save').addEventListener('click',()=>{if(!$('verified').checked){$('saveMsg').textContent='Antes de salvar, confirme que você testou a avaliação da empresa correta.';return;}const name=$('name').value.trim()||'Estabelecimento';const rows=getSaved();const found=rows.findIndex(x=>x.url===current);const record={name,url:current,date:new Date().toISOString(),production:found>=0?rows[found].production||{}:{},tags:found>=0?rows[found].tags:undefined};if(found>=0)rows[found]=record;else rows.unshift(record);try{setSaved(rows);renderSaved();$('saveMsg').textContent='Empresa salva neste navegador.';}catch{$('saveMsg').textContent='Não foi possível salvar. Exporte um backup ou libere espaço no navegador.';}});
 $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(getSaved(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='avalialink-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
-$('import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>1024*1024)throw Error('Arquivo muito grande');const rows=JSON.parse(await file.text());if(!Array.isArray(rows)||rows.length>10000||!rows.every(x=>x&&typeof x.name==='string'&&typeof x.url==='string'&&x.url.length<3000&&parseLink(x.url)))throw Error('Formato inválido ou link não aceito');if(!confirm('Importar '+rows.length+' empresas? Isso substituirá a lista atual.'))return;setSaved(rows.map(x=>({name:x.name.slice(0,200),url:x.url,date:typeof x.date==='string'?x.date:'',production:x.production&&typeof x.production==='object'?{recorded:x.production.recorded===true,tested:x.production.tested===true,locked:x.production.locked===true}:{}})));renderSaved();}catch(err){alert('Não foi possível importar: '+err.message);}finally{e.target.value='';}});
+$('import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>1024*1024)throw Error('Arquivo muito grande');const rows=JSON.parse(await file.text());if(!Array.isArray(rows)||rows.length>10000||!rows.every(x=>x&&typeof x.name==='string'&&typeof x.url==='string'&&x.url.length<3000&&parseLink(x.url)))throw Error('Formato inválido ou link não aceito');if(!confirm('Importar '+rows.length+' empresas? Isso substituirá a lista atual.'))return;setSaved(rows.map(x=>({name:x.name.slice(0,200),url:x.url,date:typeof x.date==='string'?x.date:'',production:x.production&&typeof x.production==='object'?{recorded:x.production.recorded===true,tested:x.production.tested===true,locked:x.production.locked===true}:{},tags:Array.isArray(x.tags)&&x.tags.length?x.tags.slice(0,200).map((t,j)=>({id:typeof t.id==='string'?t.id.slice(0,80):'import-'+j,name:typeof t.name==='string'?t.name.slice(0,80):'Tag '+(j+1),production:{recorded:t.production?.recorded===true,tested:t.production?.tested===true,locked:t.production?.locked===true}})):undefined})));renderSaved();}catch(err){alert('Não foi possível importar: '+err.message);}finally{e.target.value='';}});
 renderSaved();
 
 const nfcButton=$('writeNfc');
