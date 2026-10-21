@@ -27,6 +27,16 @@
 <button id="writeNfc" type="button" disabled>Gravar NFC diretamente</button>
 <p id="nfcStatus" role="status" aria-live="polite" class="muted">Marque a confirmação acima para habilitar a gravação.</p>
 </section>
+<section class="nfc-panel">
+<h2>Ler e verificar tag NFC</h2>
+<p class="muted">Leia uma tag já gravada para conferir o endereço armazenado. A leitura não altera o conteúdo.</p>
+<button id="readNfc" type="button">Ler tag NFC</button>
+<button id="stopReadNfc" type="button" class="secondary" disabled>Cancelar leitura</button>
+<p id="readNfcStatus" role="status" aria-live="polite" class="muted">Aguardando leitura.</p>
+<p id="readNfcUrl" style="overflow-wrap:anywhere"></p>
+<a id="readNfcOpen" class="btn secondary" target="_blank" rel="noopener noreferrer" hidden>Abrir endereço lido ↗</a>
+<p class="muted"><strong>Proteção por senha:</strong> a NTAG213 aceita senha, mas o Web NFC não permite configurá-la nem autenticar tags protegidas. Esta versão não aplica senha nem bloqueio. Para isso, será necessário um aplicativo Android nativo.</p>
+</section>
 <h2>QR Code</h2><div id="qr"></div><p class="muted">Use o mesmo endereço no QR Code e no NFC Tools. Teste ambos com um celular antes de entregar.</p><button id="download" type="button">Baixar QR Code PNG</button><button id="save" class="secondary" type="button">Salvar empresa neste navegador</button><p id="saveMsg" role="status"></p></section>
 </div><div id="tab-clients" class="tab-panel" hidden><section class="card"><h2>Meus clientes</h2><p class="muted">Os dados ficam apenas neste navegador, sem conta ou servidor. Limpar os dados do navegador pode apagá-los.</p><label for="filterCustomers">Pesquisar cliente salvo</label><input id="filterCustomers" placeholder="Digite o nome da empresa"><p id="customerCount" class="muted"></p><div id="savedList"></div><button id="export" class="secondary" type="button">Exportar backup JSON</button><label for="import">Importar backup JSON</label><input id="import" type="file" accept="application/json,.json"></section>
 </div><details class="help"><summary>Como gravar a NTAG213 e cuidados</summary><section class="card"><h2>Como gravar a NTAG213</h2><p>No Android: <strong>NFC Tools → Escrever → Adicionar registro → URL/URI → cole o link → OK → Escrever</strong>. Aproxime a tag e aguarde a confirmação. Não bloqueie a tag permanentemente antes de testar.</p><p class="warning">NTAG213: 144 bytes de memória NDEF. O indicador de tamanho abaixo é uma estimativa para um único registro URI; o aplicativo pode usar bytes adicionais. Confirme o espaço e a gravação no NFC Tools.</p><p class="muted">AvaliaLink é independente e não é afiliado ao Google. Não incentive apenas avaliações positivas nem ofereça recompensas por avaliações.</p></section></details><footer>AvaliaLink • Ferramenta gratuita para produção de tags NFC</footer></main>
@@ -185,6 +195,40 @@ nfcButton.addEventListener('click',async()=>{
  }finally{nfcBusy=false;const msg=nfcStatus.textContent;refreshNfc();nfcStatus.textContent=msg;}
 });
 refreshNfc();
+
+let readController=null;
+const readButton=$('readNfc'),stopReadButton=$('stopReadNfc'),readStatus=$('readNfcStatus');
+function stopNfcRead(){if(readController){readController.abort();readController=null;}readButton.disabled=false;stopReadButton.disabled=true;}
+stopReadButton.addEventListener('click',()=>{stopNfcRead();readStatus.textContent='Leitura cancelada.';});
+readButton.addEventListener('click',async()=>{
+ if(!('NDEFReader' in window)){readStatus.textContent='Leitura Web NFC indisponível neste navegador. Abra no Chrome do Android.';return;}
+ if(readController)stopNfcRead();
+ const controller=new AbortController();readController=controller;readButton.disabled=true;stopReadButton.disabled=false;
+ $('readNfcUrl').textContent='';$('readNfcOpen').hidden=true;
+ readStatus.textContent='Aproxime a tag NFC da parte traseira do celular...';
+ try{
+  const reader=new NDEFReader();
+  reader.onreadingerror=()=>{readStatus.textContent='Não foi possível ler esta tag. Tente aproximar novamente.';};
+  reader.onreading=event=>{
+   if(readController!==controller)return;
+   const urls=[];
+   for(const record of event.message.records){
+    try{
+     if(record.recordType==='url'&&record.data){urls.push(new TextDecoder(record.encoding||'utf-8').decode(record.data));}
+    }catch{}
+   }
+   const url=urls[0]||'';
+   if(!url){readStatus.textContent='Tag lida, mas nenhum registro de URL compatível foi encontrado.';stopNfcRead();return;}
+   $('readNfcUrl').textContent=url;
+   let safe=false;try{const u=new URL(url);safe=u.protocol==='https:';}catch{}
+   if(safe){$('readNfcOpen').href=url;$('readNfcOpen').hidden=false;}
+   const matches=!!current&&url===current;
+   readStatus.textContent=matches?'Tag lida: o endereço é igual ao link gerado. Ainda confirme no Google.':current?'Tag lida: o endereço é DIFERENTE do link gerado. Confira antes de entregar.':'Tag lida. Confira o endereço e teste no Google.';
+   stopNfcRead();
+  };
+  await reader.scan({signal:controller.signal});
+ }catch(err){if(readController===controller){readStatus.textContent=err.name==='NotAllowedError'?'Permissão NFC negada. Autorize no Chrome.':err.name==='AbortError'?'Leitura cancelada.':'Falha ao iniciar leitura NFC: '+(err.name||'erro')+'.';stopNfcRead();}}
+});
 
 </script>
 <script>
