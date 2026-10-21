@@ -1,8 +1,16 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AvaliaLink | NFC e QR Code</title>
+<meta name="theme-color" content="#1765df">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AvaliaLink">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1b2a45;background:#f2f6fc}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:32px auto;padding:0 16px}header{display:flex;align-items:center;gap:14px}.logo{background:#dceaff;border-radius:16px;padding:15px;font-size:30px}h1{margin:0;font-size:32px}h2{font-size:21px}p{color:#53637d;line-height:1.5}.card{background:white;border:1px solid #dce4f1;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 6px 25px #17305a08}label{display:block;font-weight:650;margin:15px 0 6px}input,select{width:100%;font:inherit;padding:13px;border:1px solid #bdcbe0;border-radius:10px}button,.btn{display:inline-block;background:#1765df;color:white;border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;margin:8px 7px 0 0}.secondary{background:#eaf1fc;color:#174276}.danger{background:#fff1ed;color:#a22b1b}.row{display:flex;flex-wrap:wrap;gap:6px}.muted{font-size:13px;color:#5c6b84}.warning{background:#fff4d8;border-radius:10px;padding:12px;color:#70500c}.good{color:#08734d}.bad{color:#b33126}.customer{padding:16px 0;border-bottom:1px solid #e4eaf4}.customer strong{font-size:17px}.output{display:none}.output.show{display:block}#resultLink{overflow-wrap:anywhere}#qr{display:inline-block;background:white;border:1px solid #dce4f1;border-radius:10px;padding:12px}#qr canvas,#qr img{max-width:100%}footer{text-align:center;color:#68758b;padding:24px}button:focus-visible,input:focus-visible{outline:3px solid #8cbaff}@media(max-width:600px){h1{font-size:26px}.card{padding:18px}}
 .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:20px 0 10px}.tab{min-width:0;margin:0;padding:12px 5px;background:#e5edf9;color:#174276;font-size:14px}.tab.active{background:#1765df;color:#fff}.tab-panel[hidden]{display:none!important}.help{margin:16px 0}.help summary{cursor:pointer;font-weight:650;color:#174276;padding:12px}.help .card{margin-top:8px}.card h2{margin-top:0}.tab-panel .card{margin-top:12px}@media(max-width:600px){.wrap{margin:14px auto;padding:0 12px}header{gap:10px}.logo{font-size:23px;padding:10px;border-radius:12px}h1{font-size:24px}header p{font-size:12px}.card{padding:17px;margin:12px 0;border-radius:15px}h2{font-size:19px}.row>button,.row>.btn{flex:1 1 100%;text-align:center;margin:3px 0}.tab{font-size:13px}#generate,#download,#save{width:100%;margin:8px 0}#qr{max-width:100%}}
+@media(max-width:600px){.wrap{margin:9px auto;padding:0 10px}.card{padding:14px}.card h2{margin-bottom:8px}label{margin:10px 0 5px}input,select{padding:11px}.tabs{margin:12px 0 8px}header p{margin:2px 0!important}.muted{line-height:1.4}footer{padding:14px}}
 </style></head><body><main class="wrap"><header><div class="logo">⭐</div><div><h1>AvaliaLink</h1><p style="margin:4px 0">Seu gerador de links, QR Codes e tags NFC</p></div></header>
 <nav class="tabs" aria-label="Ferramentas"><button type="button" class="tab active" data-tab="create">✦ Nova tag</button><button type="button" class="tab" data-tab="search">⌕ Buscar</button><button type="button" class="tab" data-tab="clients">▤ Clientes</button></nav><div id="tab-search" class="tab-panel" hidden><section class="card"><h2>Buscar empresa</h2>
 <p class="muted">Pesquise gratuitamente no Google Maps e confira qual empresa é a correta. A pesquisa abre em outra aba; o Google Maps não envia automaticamente o Place ID ao AvaliaLink.</p>
@@ -126,4 +134,11 @@ $('save').addEventListener('click',()=>{if(!$('verified').checked){$('saveMsg').
 $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(getSaved(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='avalialink-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 $('import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>1024*1024)throw Error('Arquivo muito grande');const rows=JSON.parse(await file.text());if(!Array.isArray(rows)||rows.length>10000||!rows.every(x=>x&&typeof x.name==='string'&&typeof x.url==='string'&&x.url.length<3000&&parseLink(x.url)))throw Error('Formato inválido ou link não aceito');if(!confirm('Importar '+rows.length+' empresas? Isso substituirá a lista atual.'))return;setSaved(rows.map(x=>({name:x.name.slice(0,200),url:x.url,date:typeof x.date==='string'?x.date:''})));renderSaved();}catch(err){alert('Não foi possível importar: '+err.message);}finally{e.target.value='';}});
 renderSaved();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
 </script></body></html>
