@@ -11,6 +11,7 @@
 :root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1b2a45;background:#f2f6fc}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:32px auto;padding:0 16px}header{display:flex;align-items:center;gap:14px}.logo{background:#dceaff;border-radius:16px;padding:15px;font-size:30px}h1{margin:0;font-size:32px}h2{font-size:21px}p{color:#53637d;line-height:1.5}.card{background:white;border:1px solid #dce4f1;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 6px 25px #17305a08}label{display:block;font-weight:650;margin:15px 0 6px}input,select{width:100%;font:inherit;padding:13px;border:1px solid #bdcbe0;border-radius:10px}button,.btn{display:inline-block;background:#1765df;color:white;border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;margin:8px 7px 0 0}.secondary{background:#eaf1fc;color:#174276}.danger{background:#fff1ed;color:#a22b1b}.row{display:flex;flex-wrap:wrap;gap:6px}.muted{font-size:13px;color:#5c6b84}.warning{background:#fff4d8;border-radius:10px;padding:12px;color:#70500c}.good{color:#08734d}.bad{color:#b33126}.customer{padding:16px 0;border-bottom:1px solid #e4eaf4}.customer strong{font-size:17px}.output{display:none}.output.show{display:block}#resultLink{overflow-wrap:anywhere}#qr{display:inline-block;background:white;border:1px solid #dce4f1;border-radius:10px;padding:12px}#qr canvas,#qr img{max-width:100%}footer{text-align:center;color:#68758b;padding:24px}button:focus-visible,input:focus-visible{outline:3px solid #8cbaff}@media(max-width:600px){h1{font-size:26px}.card{padding:18px}}
 .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:20px 0 10px}.tab{min-width:0;margin:0;padding:12px 5px;background:#e5edf9;color:#174276;font-size:14px}.tab.active{background:#1765df;color:#fff}.tab-panel[hidden]{display:none!important}.help{margin:16px 0}.help summary{cursor:pointer;font-weight:650;color:#174276;padding:12px}.help .card{margin-top:8px}.card h2{margin-top:0}.tab-panel .card{margin-top:12px}@media(max-width:600px){.wrap{margin:14px auto;padding:0 12px}header{gap:10px}.logo{font-size:23px;padding:10px;border-radius:12px}h1{font-size:24px}header p{font-size:12px}.card{padding:17px;margin:12px 0;border-radius:15px}h2{font-size:19px}.row>button,.row>.btn{flex:1 1 100%;text-align:center;margin:3px 0}.tab{font-size:13px}#generate,#download,#save{width:100%;margin:8px 0}#qr{max-width:100%}}
 @media(max-width:600px){.wrap{margin:9px auto;padding:0 10px}.card{padding:14px}.card h2{margin-bottom:8px}label{margin:10px 0 5px}input,select{padding:11px}.tabs{margin:12px 0 8px}header p{margin:2px 0!important}.muted{line-height:1.4}footer{padding:14px}}
+.nfc-panel{border:1px solid #c8d9f3;background:#f5f9ff;border-radius:12px;padding:14px;margin:14px 0}.nfc-panel h2{margin:0 0 6px}.nfc-panel p{margin:8px 0}.nfc-panel button{margin:5px 0;width:100%}button:disabled{opacity:.55;cursor:not-allowed}
 </style></head><body><main class="wrap"><header><div class="logo">⭐</div><div><h1>AvaliaLink</h1><p style="margin:4px 0">Seu gerador de links, QR Codes e tags NFC</p></div></header>
 <nav class="tabs" aria-label="Ferramentas"><button type="button" class="tab active" data-tab="create">✦ Nova tag</button><button type="button" class="tab" data-tab="search">⌕ Buscar</button><button type="button" class="tab" data-tab="clients">▤ Clientes</button></nav><div id="tab-search" class="tab-panel" hidden><section class="card"><h2>Buscar empresa</h2>
 <p class="muted">Pesquise gratuitamente no Google Maps e confira qual empresa é a correta. A pesquisa abre em outra aba; o Google Maps não envia automaticamente o Place ID ao AvaliaLink.</p>
@@ -19,7 +20,14 @@
 <div class="row"><button id="searchMaps" type="button">Pesquisar no Google Maps ↗</button><a class="btn secondary" href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder" target="_blank" rel="noopener noreferrer">Localizar Place ID no Google ↗</a><button id="useName" class="secondary" type="button">Usar nome no cadastro ↓</button></div>
 <p class="muted">Depois de identificar a empresa, use o link oficial de avaliação ou um Place ID obtido por uma fonte confiável. Não cole o link comum do Maps no campo de avaliação.</p></section></div>
 <div id="tab-create" class="tab-panel"><section class="card"><h2>Nova tag NFC</h2><label for="name">Nome do estabelecimento</label><input id="name" placeholder="Ex.: Minha Oficina" autocomplete="organization"><label for="mode">Como você obteve o link?</label><select id="mode"><option value="official">Link direto de avaliação fornecido pela empresa</option><option value="placeid">Place ID do Google</option></select><label for="source" id="sourceLabel">Link direto de avaliação</label><input id="source" type="text" placeholder="Cole o link de avaliação aqui" autocomplete="off"><p class="muted" id="sourceHelp">Peça ao responsável pelo Perfil da Empresa no Google o link para solicitar avaliações. Links comuns de localização do Maps não são links de avaliação.</p><div class="row"><a class="btn secondary" href="https://www.google.com/maps" target="_blank" rel="noopener">Abrir Google Maps ↗</a></div><button id="generate" type="button">Gerar link e QR Code</button><p id="message" role="status" aria-live="polite"></p></section>
-<section id="output" class="card output"><h2>Conferir avaliação</h2><h3 id="business"></h3><a id="resultLink" href="#" target="_blank" rel="noopener"></a><div class="row"><button id="copy" type="button">Copiar para NFC Tools</button><a id="open" class="btn secondary" target="_blank" rel="noopener">Testar avaliação ↗</a><button id="share" class="secondary" type="button">Compartilhar</button></div><p class="warning">Antes de vender: abra o link, confira o nome da empresa e se aparece a tela para escrever uma avaliação. O gerador não consegue verificar isso automaticamente.</p><label style="font-weight:500"><input id="verified" type="checkbox" style="width:auto;margin-right:8px">Testei e confirmei que abre a avaliação da empresa correta</label><p id="capacity" role="status"></p><h2>QR Code</h2><div id="qr"></div><p class="muted">Use o mesmo endereço no QR Code e no NFC Tools. Teste ambos com um celular antes de entregar.</p><button id="download" type="button">Baixar QR Code PNG</button><button id="save" class="secondary" type="button">Salvar empresa neste navegador</button><p id="saveMsg" role="status"></p></section>
+<section id="output" class="card output"><h2>Conferir avaliação</h2><h3 id="business"></h3><a id="resultLink" href="#" target="_blank" rel="noopener"></a><div class="row"><button id="copy" type="button">Copiar para NFC Tools</button><a id="open" class="btn secondary" target="_blank" rel="noopener">Testar avaliação ↗</a><button id="share" class="secondary" type="button">Compartilhar</button></div><p class="warning">Antes de vender: abra o link, confira o nome da empresa e se aparece a tela para escrever uma avaliação. O gerador não consegue verificar isso automaticamente.</p><label style="font-weight:500"><input id="verified" type="checkbox" style="width:auto;margin-right:8px">Testei e confirmei que abre a avaliação da empresa correta</label><p id="capacity" role="status"></p>
+<section id="nfcPanel" class="nfc-panel">
+<h2>Gravar tag NFC</h2>
+<p class="muted">No Chrome do Android, grave este link diretamente em uma tag NDEF compatível. Confirme a empresa correta antes de gravar.</p>
+<button id="writeNfc" type="button" disabled>Gravar NFC diretamente</button>
+<p id="nfcStatus" role="status" aria-live="polite" class="muted">Marque a confirmação acima para habilitar a gravação.</p>
+</section>
+<h2>QR Code</h2><div id="qr"></div><p class="muted">Use o mesmo endereço no QR Code e no NFC Tools. Teste ambos com um celular antes de entregar.</p><button id="download" type="button">Baixar QR Code PNG</button><button id="save" class="secondary" type="button">Salvar empresa neste navegador</button><p id="saveMsg" role="status"></p></section>
 </div><div id="tab-clients" class="tab-panel" hidden><section class="card"><h2>Meus clientes</h2><p class="muted">Os dados ficam apenas neste navegador, sem conta ou servidor. Limpar os dados do navegador pode apagá-los.</p><label for="filterCustomers">Pesquisar cliente salvo</label><input id="filterCustomers" placeholder="Digite o nome da empresa"><p id="customerCount" class="muted"></p><div id="savedList"></div><button id="export" class="secondary" type="button">Exportar backup JSON</button><label for="import">Importar backup JSON</label><input id="import" type="file" accept="application/json,.json"></section>
 </div><details class="help"><summary>Como gravar a NTAG213 e cuidados</summary><section class="card"><h2>Como gravar a NTAG213</h2><p>No Android: <strong>NFC Tools → Escrever → Adicionar registro → URL/URI → cole o link → OK → Escrever</strong>. Aproxime a tag e aguarde a confirmação. Não bloqueie a tag permanentemente antes de testar.</p><p class="warning">NTAG213: 144 bytes de memória NDEF. O indicador de tamanho abaixo é uma estimativa para um único registro URI; o aplicativo pode usar bytes adicionais. Confirme o espaço e a gravação no NFC Tools.</p><p class="muted">AvaliaLink é independente e não é afiliado ao Google. Não incentive apenas avaliações positivas nem ofereça recompensas por avaliações.</p></section></details><footer>AvaliaLink • Ferramenta gratuita para produção de tags NFC</footer></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -134,6 +142,50 @@ $('save').addEventListener('click',()=>{if(!$('verified').checked){$('saveMsg').
 $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(getSaved(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='avalialink-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 $('import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>1024*1024)throw Error('Arquivo muito grande');const rows=JSON.parse(await file.text());if(!Array.isArray(rows)||rows.length>10000||!rows.every(x=>x&&typeof x.name==='string'&&typeof x.url==='string'&&x.url.length<3000&&parseLink(x.url)))throw Error('Formato inválido ou link não aceito');if(!confirm('Importar '+rows.length+' empresas? Isso substituirá a lista atual.'))return;setSaved(rows.map(x=>({name:x.name.slice(0,200),url:x.url,date:typeof x.date==='string'?x.date:''})));renderSaved();}catch(err){alert('Não foi possível importar: '+err.message);}finally{e.target.value='';}});
 renderSaved();
+
+const nfcButton=$('writeNfc');
+const nfcStatus=$('nfcStatus');
+let nfcBusy=false;
+function refreshNfc(){
+ nfcButton.disabled=nfcBusy||!$('verified').checked||!current||!$('output').classList.contains('show')||!('NDEFReader' in window);
+ if(!('NDEFReader' in window)){
+  nfcStatus.textContent='Gravação NFC direta indisponível neste navegador/aparelho. Use o NFC Tools.';
+ }else if(!$('verified').checked){
+  nfcStatus.textContent='Primeiro confirme que o link abre a avaliação da empresa correta.';
+ }else if(!nfcBusy){
+  nfcStatus.textContent='Pronto para gravar. Ative o NFC do celular.';
+ }
+}
+$('verified').addEventListener('change',refreshNfc);
+$('generate').addEventListener('click',()=>{nfcStatus.textContent='Confira a avaliação antes de gravar.';refreshNfc();});
+$('mode').addEventListener('change',refreshNfc);
+nfcButton.addEventListener('click',async()=>{
+ if(nfcBusy||!current||!$('verified').checked)return;
+ if(!('NDEFReader' in window)){refreshNfc();return;}
+ const url=current;
+ if(ndefEstimate(url)>144){nfcStatus.textContent='O link pode ser grande demais para a NTAG213. Não grave sem verificar a capacidade.';return;}
+ if(!confirm('Gravar o link de '+$('business').textContent+' na tag NFC? Isso pode substituir o conteúdo atual da tag.'))return;
+ nfcBusy=true;nfcButton.disabled=true;
+ nfcStatus.textContent='Aproxime a NTAG213 da parte traseira do celular e mantenha-a parada...';
+ try{
+  const writer=new NDEFReader();
+  await writer.write({records:[{recordType:'url',data:url}]});
+  nfcStatus.textContent='Gravação concluída! Afaste a tag e teste se ela abre a avaliação correta.';
+ }catch(err){
+  let reason=err?.name||'Erro';
+  const hints={
+   NotAllowedError:'Permissão negada. Autorize o NFC no Chrome e tente novamente.',
+   NotSupportedError:'Este dispositivo ou navegador não permite gravação Web NFC.',
+   NotReadableError:'Não foi possível acessar a tag. Verifique o NFC e tente novamente.',
+   NetworkError:'Comunicação com a tag falhou. Aproxime novamente.',
+   AbortError:'Gravação cancelada.',
+   InvalidStateError:'O NFC já está em uso. Feche outros aplicativos NFC e tente novamente.'
+  };
+  nfcStatus.textContent=(hints[reason]||'Não foi possível gravar ('+reason+'). Tente pelo NFC Tools.');
+ }finally{nfcBusy=false;const msg=nfcStatus.textContent;refreshNfc();nfcStatus.textContent=msg;}
+});
+refreshNfc();
+
 </script>
 <script>
 if ('serviceWorker' in navigator) {
