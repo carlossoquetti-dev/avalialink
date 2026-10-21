@@ -1,117 +1,68 @@
 <!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AvaliaLink — Links e QR Codes</title>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AvaliaLink | NFC e QR Code</title>
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17233d;background:#f3f6fc}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:35px auto;padding:0 18px}header{display:flex;align-items:center;gap:14px;margin-bottom:25px}.logo{font-size:32px;background:#e2ebff;padding:13px;border-radius:16px}h1{margin:0;font-size:32px}p{color:#52617b;line-height:1.5}.card{background:white;border:1px solid #dce4f2;border-radius:20px;padding:25px;margin:16px 0;box-shadow:0 5px 24px #1b386008}label{display:block;font-weight:650;margin:15px 0 7px}input{width:100%;border:1px solid #c7d2e5;border-radius:11px;padding:14px;font:inherit}button,.btn{border:0;border-radius:11px;background:#1867e8;color:white;padding:13px 18px;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;display:inline-block;margin:10px 7px 0 0}.secondary{background:#e9effa;color:#15346e}.actions{display:flex;flex-wrap:wrap;gap:4px}.note{background:#fff6df;padding:13px;border-radius:10px;color:#77520c}.output{display:none}.output.show{display:block}#qr{background:white;padding:12px;display:inline-block;border:1px solid #dbe3ef;border-radius:10px}#qr img,#qr canvas{max-width:100%}#resultLink{overflow-wrap:anywhere;color:#1458c8}small{color:#5d6c85}footer{text-align:center;padding:25px;color:#718098}@media(max-width:600px){h1{font-size:26px}.card{padding:18px}.wrap{margin-top:20px}}
-</style>
-</head>
-<body>
-<main class="wrap">
-<header><div class="logo">⭐</div><div><h1>AvaliaLink</h1><p style="margin:4px 0">Crie links e QR Codes de avaliações do Google gratuitamente</p></div></header>
-<section class="card">
-<h2>1. Identifique o estabelecimento</h2>
-<label for="name">Nome do estabelecimento (opcional)</label><input id="name" placeholder="Ex.: Minha Loja">
-<label for="mapsurl">Link do Google Maps (opcional)</label><input id="mapsurl" type="url" placeholder="Cole aqui o link da empresa no Google Maps" autocomplete="off">
-<p><small>Links curtos maps.app.goo.gl devem ser abertos primeiro no navegador; depois copie o endereço completo.</small></p>
-<button id="extract" class="secondary" type="button">Identificar estabelecimento</button>
-<label for="pid">Place ID do Google (alternativa)</label><input id="pid" placeholder="Ex.: ChIJH3frsc5ZzpQRoU10aab2BOk" autocomplete="off">
-<div class="actions"><a class="btn secondary" href="https://developers.google.com/maps/documentation/places/web-service/place-id#find-id" target="_blank" rel="noopener noreferrer">Encontrar Place ID ↗</a><a class="btn secondary" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">Abrir Google Maps ↗</a></div>
-<p><small>Não é necessário criar chave de API ou cadastrar cartão.</small></p>
-<button id="generate" type="button">Gerar link e QR Code</button><p id="message" role="status" aria-live="polite"></p>
-</section>
-<section id="output" class="card output"><h2>2. Seu link de avaliação está pronto</h2><h3 id="business"></h3><a id="resultLink" href="#" target="_blank" rel="noopener noreferrer"></a><div class="actions"><button id="copy" type="button">Copiar link</button><a id="open" class="btn secondary" target="_blank" rel="noopener noreferrer">Testar avaliação ↗</a><button id="share" class="secondary" type="button">Compartilhar</button></div><h2>3. QR Code para impressão</h2><div id="qr"></div><p><small>Teste o QR Code com a câmera do celular antes de imprimir ou gravar em NFC.</small></p><button id="download" type="button">Baixar QR Code PNG</button></section>
-<section class="card"><h2>Como usar</h2><p>Cole o endereço completo do Google Maps, clique em Identificar estabelecimento e depois em gerar. Se não houver identificador compatível, use o Place ID. Confira sempre se o link abre a empresa certa antes de compartilhar.</p><div class="note">Os formatos de links de avaliação podem mudar. Para estabelecimentos que você administra, prefira o link oficial disponível no Perfil da Empresa no Google.</div></section>
-<footer>AvaliaLink • Ferramenta independente, não afiliada ao Google</footer>
-</main>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1b2a45;background:#f2f6fc}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:32px auto;padding:0 16px}header{display:flex;align-items:center;gap:14px}.logo{background:#dceaff;border-radius:16px;padding:15px;font-size:30px}h1{margin:0;font-size:32px}h2{font-size:21px}p{color:#53637d;line-height:1.5}.card{background:white;border:1px solid #dce4f1;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 6px 25px #17305a08}label{display:block;font-weight:650;margin:15px 0 6px}input,select{width:100%;font:inherit;padding:13px;border:1px solid #bdcbe0;border-radius:10px}button,.btn{display:inline-block;background:#1765df;color:white;border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;margin:8px 7px 0 0}.secondary{background:#eaf1fc;color:#174276}.danger{background:#fff1ed;color:#a22b1b}.row{display:flex;flex-wrap:wrap;gap:6px}.muted{font-size:13px;color:#5c6b84}.warning{background:#fff4d8;border-radius:10px;padding:12px;color:#70500c}.good{color:#08734d}.bad{color:#b33126}.output{display:none}.output.show{display:block}#resultLink{overflow-wrap:anywhere}#qr{display:inline-block;background:white;border:1px solid #dce4f1;border-radius:10px;padding:12px}#qr canvas,#qr img{max-width:100%}footer{text-align:center;color:#68758b;padding:24px}button:focus-visible,input:focus-visible{outline:3px solid #8cbaff}@media(max-width:600px){h1{font-size:26px}.card{padding:18px}}
+</style></head><body><main class="wrap"><header><div class="logo">⭐</div><div><h1>AvaliaLink</h1><p style="margin:4px 0">Seu gerador de links, QR Codes e tags NFC</p></div></header>
+<section class="card"><h2>1. Dados da empresa</h2><label for="name">Nome do estabelecimento</label><input id="name" placeholder="Ex.: Minha Oficina" autocomplete="organization"><label for="mode">Como você obteve o link?</label><select id="mode"><option value="official">Link direto de avaliação fornecido pela empresa</option><option value="placeid">Place ID do Google</option></select><label for="source" id="sourceLabel">Link direto de avaliação</label><input id="source" type="text" placeholder="Cole o link de avaliação aqui" autocomplete="off"><p class="muted" id="sourceHelp">Peça ao responsável pelo Perfil da Empresa no Google o link para solicitar avaliações. Links comuns de localização do Maps não são links de avaliação.</p><div class="row"><a class="btn secondary" href="https://www.google.com/maps" target="_blank" rel="noopener">Abrir Google Maps ↗</a></div><button id="generate" type="button">Gerar link e QR Code</button><p id="message" role="status" aria-live="polite"></p></section>
+<section id="output" class="card output"><h2>2. Conferir link antes de gravar</h2><h3 id="business"></h3><a id="resultLink" href="#" target="_blank" rel="noopener"></a><div class="row"><button id="copy" type="button">Copiar para NFC Tools</button><a id="open" class="btn secondary" target="_blank" rel="noopener">Testar avaliação ↗</a><button id="share" class="secondary" type="button">Compartilhar</button></div><p class="warning">Antes de vender: abra o link, confira o nome da empresa e se aparece a tela para escrever uma avaliação. O gerador não consegue verificar isso automaticamente.</p><label style="font-weight:500"><input id="verified" type="checkbox" style="width:auto;margin-right:8px">Testei e confirmei que abre a avaliação da empresa correta</label><p id="capacity" role="status"></p><h2>3. QR Code para impressão</h2><div id="qr"></div><p class="muted">Use o mesmo endereço no QR Code e no NFC Tools. Teste ambos com um celular antes de entregar.</p><button id="download" type="button">Baixar QR Code PNG</button><button id="save" class="secondary" type="button">Salvar empresa neste navegador</button><p id="saveMsg" role="status"></p></section>
+<section class="card"><h2>4. Clientes salvos neste navegador</h2><p class="muted">Os dados ficam apenas neste navegador, sem conta ou servidor. Limpar os dados do navegador pode apagá-los.</p><div id="savedList"></div><button id="export" class="secondary" type="button">Exportar backup JSON</button><label for="import">Importar backup JSON</label><input id="import" type="file" accept="application/json,.json"></section>
+<section class="card"><h2>Como gravar a NTAG213</h2><p>No Android: <strong>NFC Tools → Escrever → Adicionar registro → URL/URI → cole o link → OK → Escrever</strong>. Aproxime a tag e aguarde a confirmação. Não bloqueie a tag permanentemente antes de testar.</p><p class="warning">NTAG213: 144 bytes de memória NDEF. O indicador de tamanho abaixo é uma estimativa para um único registro URI; o aplicativo pode usar bytes adicionais. Confirme o espaço e a gravação no NFC Tools.</p><p class="muted">AvaliaLink é independente e não é afiliado ao Google. Não incentive apenas avaliações positivas nem ofereça recompensas por avaliações.</p></section><footer>AvaliaLink • Ferramenta gratuita para produção de tags NFC</footer></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 'use strict';
-const $ = id => document.getElementById(id);
-let current = '';
-let mapsHex = '';
-function googleHost(host) {
-  return host === 'google.com' || host.endsWith('.google.com') || host === 'google.com.br' || host.endsWith('.google.com.br');
+const $=id=>document.getElementById(id);
+const STORE='avalialink_customers_v1';
+let current='';
+const encoder=new TextEncoder();
+function parseLink(raw){
+  let u;try{u=new URL(raw.trim())}catch{return null}
+  if(!['https:','http:'].includes(u.protocol)||u.username||u.password)return null;
+  if(u.protocol!=='https:')return null;
+  const host=u.hostname.toLowerCase();
+  const google=host==='google.com'||host.endsWith('.google.com')||host==='google.com.br'||host.endsWith('.google.com.br')||host==='g.page'||host.endsWith('.g.page')||host==='maps.app.goo.gl';
+  if(!google)return null;
+  // Accept explicit review destinations only, not general Google Maps location links.
+  const p=u.pathname;
+  const direct=(host==='g.page'&&/\/r\//.test(p))||(host.endsWith('.google.com')&&p.startsWith('/local/writereview')&&u.searchParams.has('placeid'))||(host==='google.com'&&p.startsWith('/local/writereview')&&u.searchParams.has('placeid'))||(host==='google.com.br'&&p.startsWith('/local/writereview')&&u.searchParams.has('placeid'));
+  if(!direct)return null;
+  return u.href;
 }
-function parseMapsUrl(raw) {
-  let u;
-  try { u = new URL(raw.trim()); } catch { return {error:'Cole um endereço válido do Google Maps.'}; }
-  if (!['http:', 'https:'].includes(u.protocol)) return {error:'O endereço deve começar com https://.'};
-  const host = u.hostname.toLowerCase();
-  if (host === 'maps.app.goo.gl' || host === 'goo.gl') return {error:'Este é um link curto. Abra-o no navegador e copie o endereço completo que aparecer.'};
-  if (!googleHost(host)) return {error:'Cole um link do Google Maps.'};
-  let decoded = u.href;
-  try { decoded = decodeURIComponent(decoded); } catch {}
-  const values = [u.searchParams.get('query_place_id'), u.searchParams.get('place_id'), u.searchParams.get('placeid')];
-  const placeMatch = decoded.match(/(?:!1s|(?:place_id|placeid|query_place_id)=)(ChIJ[A-Za-z0-9_-]{15,})/);
-  if (placeMatch) values.push(placeMatch[1]);
-  const pid = values.find(v => /^ChIJ[A-Za-z0-9_-]{15,}$/.test(v || ''));
-  if (pid) return {pid};
-  const hexMatch = decoded.match(/(?:!1s|ftid=|\/place\/[^?#]*?)(0x[0-9a-f]+:0x[0-9a-f]+)/i);
-  if (hexMatch) return {hex:hexMatch[1]};
-  return {error:'Não encontrei um identificador compatível. Tente outro link completo ou informe o Place ID.'};
+function build(){
+  const raw=$('source').value.trim();
+  if($('mode').value==='official')return parseLink(raw);
+  if(!/^ChIJ[A-Za-z0-9_-]{15,}$/.test(raw))return null;
+  return 'https://search.google.com/local/writereview?placeid='+encodeURIComponent(raw);
 }
-function showMessage(text) { $('message').textContent = text; }
-$('extract').addEventListener('click', () => {
-  const result = parseMapsUrl($('mapsurl').value);
-  $('output').classList.remove('show'); current = ''; mapsHex = '';
-  if (result.pid) {
-    $('pid').value = result.pid;
-    showMessage('Place ID identificado! Agora clique em Gerar link e QR Code.');
-  } else if (result.hex) {
-    $('pid').value = '';
-    mapsHex = result.hex;
-    showMessage('Identificador do Google Maps reconhecido! Agora clique em Gerar link e QR Code.');
-  } else {
-    showMessage(result.error);
-  }
+function ndefEstimate(url){
+  // NDEF URI record: TLV(2) + record header(4) + URI identifier(1) + text bytes + terminator(1).
+  const prefixes=['https://www.','http://www.','https://','http://'];
+  const prefix=prefixes.find(p=>url.startsWith(p))||'';
+  const body=prefix?url.slice(prefix.length):url;
+  return encoder.encode(body).length+8;
+}
+function updateCapacity(){
+ const bytes=ndefEstimate(current);$('capacity').textContent='NTAG213: estimativa '+bytes+' de 144 bytes disponíveis — '+(bytes<=144?'provavelmente cabe':'pode não caber');$('capacity').className=bytes<=144?'good':'bad';
+}
+$('mode').addEventListener('change',()=>{
+ const place=$('mode').value==='placeid';$('sourceLabel').textContent=place?'Place ID do Google':'Link direto de avaliação';$('source').placeholder=place?'Ex.: ChIJH3frsc5ZzpQRoU10aab2BOk':'Cole o link de avaliação aqui';$('sourceHelp').textContent=place?'Use somente um Place ID verdadeiro. O código não é o mesmo que o link comum do Maps.':'Peça ao responsável pelo Perfil da Empresa no Google o link para solicitar avaliações. Links comuns de localização do Maps não são links de avaliação.';
+ $('output').classList.remove('show');$('message').textContent='';
 });
-$('mapsurl').addEventListener('input', () => { mapsHex = ''; $('output').classList.remove('show'); });
-$('pid').addEventListener('input', () => { $('output').classList.remove('show'); });
-$('generate').addEventListener('click', () => {
-  const pid = $('pid').value.trim();
-  const name = $('name').value.trim();
-  showMessage('');
-  if (pid && !/^[A-Za-z0-9_-]{10,}$/.test(pid)) { showMessage('Confira o Place ID informado.'); return; }
-  if (!pid && !mapsHex) { showMessage('Informe um Place ID ou identifique o estabelecimento pelo link completo do Maps.'); return; }
-  if (typeof QRCode === 'undefined') { showMessage('Não foi possível carregar a biblioteca de QR Code. Verifique a conexão e atualize a página.'); return; }
-  current = pid ? 'https://search.google.com/local/writereview?placeid=' + encodeURIComponent(pid) : 'https://www.google.com/maps/place//data=!4m3!3m2!1s' + mapsHex + '!12e1';
-  $('business').textContent = name || 'Estabelecimento';
-  $('resultLink').textContent = current;
-  $('resultLink').href = current;
-  $('open').href = current;
-  $('qr').replaceChildren();
-  try {
-    new QRCode($('qr'), {text:current, width:240, height:240, correctLevel:QRCode.CorrectLevel.M});
-  } catch (err) { showMessage('Não foi possível gerar o QR Code. Atualize a página e tente novamente.'); return; }
-  $('output').classList.add('show');
-  $('output').scrollIntoView({behavior:'smooth',block:'start'});
+$('generate').addEventListener('click',()=>{
+ $('message').textContent='';$('saveMsg').textContent='';$('output').classList.remove('show');
+ const link=build();if(!link){$('message').textContent=$('mode').value==='official'?'Cole um link direto de avaliação válido (por exemplo, g.page/.../review ou search.google.com/local/writereview?placeid=...). Links comuns do Maps não são aceitos.':'Informe um Place ID válido começando com ChIJ.';return;}
+ if(typeof QRCode==='undefined'){$('message').textContent='Não foi possível carregar a biblioteca de QR Code. Verifique sua internet e recarregue a página.';return;}
+ current=link;$('business').textContent=$('name').value.trim()||'Estabelecimento';$('resultLink').href=link;$('resultLink').textContent=link;$('open').href=link;$('verified').checked=false;
+ const el=$('qr');el.innerHTML='';try{new QRCode(el,{text:link,width:256,height:256,correctLevel:QRCode.CorrectLevel.M});}catch(e){$('message').textContent='Erro ao gerar QR Code: '+e.message;return;}
+ updateCapacity();$('output').classList.add('show');
 });
-$('copy').addEventListener('click', async () => {
-  if (!current) return;
-  try { await navigator.clipboard.writeText(current); showMessage('Link copiado!'); }
-  catch { showMessage('Não foi possível copiar automaticamente. Selecione o link e copie manualmente.'); }
-});
-$('share').addEventListener('click', async () => {
-  if (!current) return;
-  if (navigator.share) {
-    try { await navigator.share({title:'Avalie este estabelecimento',url:current}); } catch {}
-  } else {
-    try { await navigator.clipboard.writeText(current); showMessage('Link copiado para compartilhar!'); }
-    catch { showMessage('Copie o link exibido acima para compartilhar.'); }
-  }
-});
-$('download').addEventListener('click', () => {
-  const canvas = $('qr').querySelector('canvas');
-  const img = $('qr').querySelector('img');
-  if (!canvas && !img) { showMessage('Gere primeiro um QR Code.'); return; }
-  const save = data => { const a=document.createElement('a'); a.href=data; a.download='avalialink-qr-code.png'; document.body.appendChild(a); a.click(); a.remove(); };
-  if (canvas) { save(canvas.toDataURL('image/png')); return; }
-  if (img && img.src.startsWith('data:image/')) { save(img.src); return; }
-  showMessage('Não foi possível baixar a imagem. Tente novamente.');
-});
-</script>
-</body>
-</html>
+$('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(current);$('message').textContent='Link copiado! Cole no NFC Tools em URL/URI.';}catch{window.prompt('Copie o link para o NFC Tools:',current);}});
+$('share').addEventListener('click',async()=>{if(navigator.share){try{await navigator.share({title:$('business').textContent,url:current});}catch{}}else{try{await navigator.clipboard.writeText(current);$('message').textContent='Link copiado para compartilhar.';}catch{window.prompt('Copie o link:',current);}}});
+$('download').addEventListener('click',()=>{if(!current)return;const img=$('qr').querySelector('img');const canvas=$('qr').querySelector('canvas');let url=img?.src||canvas?.toDataURL('image/png');if(!url){$('message').textContent='Não foi possível obter a imagem do QR Code.';return;}const a=document.createElement('a');a.href=url;a.download='avalialink-'+($('name').value.trim()||'empresa').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').slice(0,50)+'.png';document.body.appendChild(a);a.click();a.remove();});
+function getSaved(){try{const x=JSON.parse(localStorage.getItem(STORE)||'[]');return Array.isArray(x)?x:[]}catch{return []}}
+function setSaved(rows){localStorage.setItem(STORE,JSON.stringify(rows));}
+function renderSaved(){const list=$('savedList');list.replaceChildren();const rows=getSaved();if(!rows.length){list.textContent='Nenhuma empresa salva ainda.';return;}rows.forEach((item,i)=>{const box=document.createElement('div');box.style.cssText='padding:12px 0;border-bottom:1px solid #e4eaf4';const title=document.createElement('strong');title.textContent=item.name||'Estabelecimento';const sub=document.createElement('div');sub.className='muted';sub.textContent=item.url;sub.style.overflowWrap='anywhere';const open=document.createElement('a');open.href=item.url;open.target='_blank';open.rel='noopener';open.textContent='Testar ↗';open.className='btn secondary';const copy=document.createElement('button');copy.textContent='Copiar';copy.className='secondary';copy.onclick=()=>{navigator.clipboard.writeText(item.url).catch(()=>window.prompt('Copie:',item.url));};const del=document.createElement('button');del.textContent='Excluir';del.className='danger';del.onclick=()=>{if(confirm('Excluir esta empresa da lista?')){const arr=getSaved();arr.splice(i,1);setSaved(arr);renderSaved();}};box.append(title,sub,open,copy,del);list.append(box);});}
+$('save').addEventListener('click',()=>{if(!$('verified').checked){$('saveMsg').textContent='Antes de salvar, confirme que você testou a avaliação da empresa correta.';return;}const name=$('name').value.trim()||'Estabelecimento';const rows=getSaved();const found=rows.findIndex(x=>x.url===current);const record={name,url:current,date:new Date().toISOString()};if(found>=0)rows[found]=record;else rows.unshift(record);try{setSaved(rows);renderSaved();$('saveMsg').textContent='Empresa salva neste navegador.';}catch{$('saveMsg').textContent='Não foi possível salvar. Exporte um backup ou libere espaço no navegador.';}});
+$('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(getSaved(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='avalialink-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('import').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>1024*1024)throw Error('Arquivo muito grande');const rows=JSON.parse(await file.text());if(!Array.isArray(rows)||rows.length>10000||!rows.every(x=>x&&typeof x.name==='string'&&typeof x.url==='string'&&x.url.length<3000&&parseLink(x.url)))throw Error('Formato inválido ou link não aceito');if(!confirm('Importar '+rows.length+' empresas? Isso substituirá a lista atual.'))return;setSaved(rows.map(x=>({name:x.name.slice(0,200),url:x.url,date:typeof x.date==='string'?x.date:''})));renderSaved();}catch(err){alert('Não foi possível importar: '+err.message);}finally{e.target.value='';}});
+renderSaved();
+</script></body></html>
